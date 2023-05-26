@@ -22,7 +22,9 @@ router.post("/", async (request, response) => {
       const paymentMethod = event.data.object;
       console.log("PaymentMethod was attached to a Customer!");
       break;
-    // ... handle other event types
+    case "checkout.session.completed":
+      console.log("Checkout Completed!");
+      break;
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
