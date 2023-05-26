@@ -1,16 +1,6 @@
 import express from "express";
 import Stripe from "stripe";
 
-// process.env.PORT
-
-// Local Test Key
-// const stripe = new Stripe(
-//   "sk_test_51I3M77KQH24lKQqqZxEof8te6nZUnjILFhsCekJMaNFN5mutlU3pAYj8vcY02xhrzORhjUVfYd7z7p9OT73FwbvD00mCOgLemA",
-//   {
-//     apiVersion: "2020-08-27",
-//   }
-// );
-
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2020-08-27",
