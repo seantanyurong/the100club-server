@@ -23,6 +23,7 @@ router.post("/", async (request, response) => {
       console.log("PaymentMethod was attached to a Customer!");
       break;
     case "checkout.session.completed":
+      console.log(event.data.object);
       console.log("Checkout Completed!");
       break;
     default:
