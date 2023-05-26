@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import "./loadEnvironment.mjs";
-import records from "./routes/record.mjs";
 import stripeWebhook from "./routes/stripeWebhook.mjs";
 
 const PORT = process.env.PORT || 5050;
