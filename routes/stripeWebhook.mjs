@@ -1,5 +1,8 @@
 import express from "express";
 import Stripe from "stripe";
+import { supabase } from "../supabaseApi.js";
+import sgMail from "@sendgrid/mail";
+import client from "@sendgrid/client";
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -14,16 +17,73 @@ router.post("/", async (request, response) => {
 
   // Handle the event
   switch (event.type) {
-    case "payment_intent.succeeded":
-      const paymentIntent = event.data.object;
-      console.log("PaymentIntent was successful!");
-      break;
-    case "payment_method.attached":
-      const paymentMethod = event.data.object;
-      console.log("PaymentMethod was attached to a Customer!");
-      break;
     case "checkout.session.completed":
-      console.log(event.data.object);
+      const eventData = event.data.object;
+      console.log(eventData);
+
+      // // Create user in supabase
+      // const userEmail = eventData.customer_details.email;
+      // const { data, error1 } = await supabase.auth.signUp({
+      //   email: "seantanyurong@gmail.com",
+      //   password: "password",
+      // });
+
+      // console.log(data);
+      // console.log(data.user.id);
+
+      // // Add user to profile table
+      // const { error2 } = await supabase.from("profiles").insert({
+      //   id: data.user.id,
+      //   email: "seantanyurong@gmail.com",
+      //   membershipLevel: "member",
+      // });
+
+      // // Add user to sendgrid database list
+      // client.setApiKey(process.env.SENDGRID_API_KEY);
+      // const contact = {
+      //   list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+      //   contacts: [
+      //     {
+      //       email: "seantanyurong@gmail.com",
+      //       first_name: "Sean",
+      //       custom_fields: {
+      //         e1_T: "member",
+      //       },
+      //     },
+      //   ],
+      // };
+
+      // const requestAddContact = {
+      //   url: `/v3/marketing/contacts`,
+      //   method: "PUT",
+      //   body: contact,
+      // };
+
+      // client
+      //   .request(requestAddContact)
+      //   .then(([response, body]) => {
+      //     console.log(response.statusCode);
+      //     console.log(response.body);
+      //   })
+      //   .catch((error) => {
+      //     console.error(error);
+      //   });
+
+      // // User data
+      // const msg = {
+      //   to: "seantanyurong@gmail.com",
+      //   from: "hello@the100club.io",
+      //   templateId: "d-899eb8f026434e62b3207cf67620dbcb",
+      //   dynamicTemplateData: {
+      //     first_name: "Sean",
+      //     email: "seantanyurong@gmail.com",
+      //   },
+      // };
+
+      // // Send user onboarding email
+      // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      // sgMail.send(msg);
+
       console.log("Checkout Completed!");
       break;
     default:
