@@ -19,7 +19,7 @@ router.post("/", async (request, response) => {
   switch (event.type) {
     case "checkout.session.completed":
       const eventData = event.data.object;
-      const customerData = event.data.object.customer_details;
+      const customerData = eventData.customer_details;
       const customerEmail = customerData.email;
       const customerFirstName = event.data.object.custom_fields[0].text.value;
 
@@ -27,14 +27,10 @@ router.post("/", async (request, response) => {
       console.log("NAME " + customerFirstName);
 
       // Create user in supabase
-      const userEmail = eventData.customer_details.email;
       const { data, error1 } = await supabase.auth.signUp({
         email: customerEmail,
         password: "password",
       });
-
-      console.log(data);
-      console.log(data.user.id);
 
       // Add user to profile table
       const { error2 } = await supabase.from("profiles").insert({
