@@ -26,70 +26,68 @@ router.post("/", async (request, response) => {
       console.log("EMAIL " + customerEmail);
       console.log("NAME " + customerFirstName);
 
-      console.log(eventData);
+      // Create user in supabase
+      const userEmail = eventData.customer_details.email;
+      const { data, error1 } = await supabase.auth.signUp({
+        email: customerEmail,
+        password: "password",
+      });
 
-      // // Create user in supabase
-      // const userEmail = eventData.customer_details.email;
-      // const { data, error1 } = await supabase.auth.signUp({
-      //   email: "seantanyurong@gmail.com",
-      //   password: "password",
-      // });
+      console.log(data);
+      console.log(data.user.id);
 
-      // console.log(data);
-      // console.log(data.user.id);
+      // Add user to profile table
+      const { error2 } = await supabase.from("profiles").insert({
+        id: data.user.id,
+        email: customerEmail,
+        membershipLevel: "member",
+      });
 
-      // // Add user to profile table
-      // const { error2 } = await supabase.from("profiles").insert({
-      //   id: data.user.id,
-      //   email: "seantanyurong@gmail.com",
-      //   membershipLevel: "member",
-      // });
+      // Add user to sendgrid database list
+      client.setApiKey(process.env.SENDGRID_API_KEY);
+      const contact = {
+        list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+        contacts: [
+          {
+            email: customerEmail,
+            first_name: customerFirstName,
+            custom_fields: {
+              e1_T: "member",
+            },
+          },
+        ],
+      };
 
-      // // Add user to sendgrid database list
-      // client.setApiKey(process.env.SENDGRID_API_KEY);
-      // const contact = {
-      //   list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
-      //   contacts: [
-      //     {
-      //       email: "seantanyurong@gmail.com",
-      //       first_name: "Sean",
-      //       custom_fields: {
-      //         e1_T: "member",
-      //       },
-      //     },
-      //   ],
-      // };
+      const requestAddContact = {
+        url: `/v3/marketing/contacts`,
+        method: "PUT",
+        body: contact,
+      };
 
-      // const requestAddContact = {
-      //   url: `/v3/marketing/contacts`,
-      //   method: "PUT",
-      //   body: contact,
-      // };
+      client
+        .request(requestAddContact)
+        .then(([response, body]) => {
+          console.log(response.statusCode);
+          console.log(response.body);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
 
-      // client
-      //   .request(requestAddContact)
-      //   .then(([response, body]) => {
-      //     console.log(response.statusCode);
-      //     console.log(response.body);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
+      // User data
+      const msg = {
+        to: customerEmail,
+        from: "hello@the100club.io",
+        templateId: "d-899eb8f026434e62b3207cf67620dbcb",
+        dynamicTemplateData: {
+          first_name: customerFirstName,
+          email: customerEmail,
+        },
+      };
 
-      // // User data
-      // const msg = {
-      //   to: "seantanyurong@gmail.com",
-      //   from: "hello@the100club.io",
-      //   templateId: "d-899eb8f026434e62b3207cf67620dbcb",
-      //   dynamicTemplateData: {
-      //     first_name: "Sean",
-      //     email: "seantanyurong@gmail.com",
-      //   },
-      // };
-
-      // // Send user onboarding email
-      // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      // sgMail.send(msg);
+      // Send user onboarding email
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      sgMail.send(msg);
 
       console.log("Checkout Completed!");
       break;
