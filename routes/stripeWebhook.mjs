@@ -19,6 +19,13 @@ router.post("/", async (request, response) => {
   switch (event.type) {
     case "checkout.session.completed":
       const eventData = event.data.object;
+      const customerData = event.data.object.customer_details;
+      const customerEmail = customerData.email;
+      const customerFirstName = event.data.object.custom_fields[0].text;
+
+      console.log("EMAIL " + customerEmail);
+      console.log("NAME " + customerFirstName);
+
       console.log(eventData);
 
       // // Create user in supabase
