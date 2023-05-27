@@ -21,7 +21,7 @@ router.post("/", async (request, response) => {
       const eventData = event.data.object;
       const customerData = event.data.object.customer_details;
       const customerEmail = customerData.email;
-      const customerFirstName = event.data.object.custom_fields[0].text;
+      const customerFirstName = event.data.object.custom_fields[0].text.value;
 
       console.log("EMAIL " + customerEmail);
       console.log("NAME " + customerFirstName);
