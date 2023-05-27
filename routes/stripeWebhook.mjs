@@ -1,8 +1,8 @@
 import express from "express";
 import Stripe from "stripe";
-import { supabase } from "../supabaseApi.js";
-import sgMail from "@sendgrid/mail";
-import client from "@sendgrid/client";
+// import { supabase } from "../supabaseApi.js";
+// import sgMail from "@sendgrid/mail";
+// import client from "@sendgrid/client";
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
