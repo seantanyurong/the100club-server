@@ -4,6 +4,8 @@ import { supabase } from "../supabaseApi.js";
 import sgMail from "@sendgrid/mail";
 import client from "@sendgrid/client";
 
+import { send_notification_telegram } from "../helper/notification.js";
+
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2020-08-27",
@@ -104,12 +106,19 @@ router.post("/", async (request, response) => {
 
       console.log("USER EXISTS", userExists);
 
+      let newCustomer = false;
+      let supabaseUpdateSuccess = false;
+      let sendgridListSuccess = false;
+      let sendgridSendEmailSuccess = false;
+
       if (userExists) {
         const { error2 } = await supabase.from("profiles").upsert({
           id: userExists.id,
           email: customerEmail,
           membershipLevel: "member+mentor",
         });
+
+        if (!error2) supabaseUpdateSuccess = true;
 
         // Add user to sendgrid database list
         client.setApiKey(process.env.SENDGRID_API_KEY);
@@ -132,11 +141,12 @@ router.post("/", async (request, response) => {
           body: contact,
         };
 
-        client
+        await client
           .request(requestAddContact)
           .then(([response, body]) => {
             console.log(response.statusCode);
             console.log(response.body);
+            sendgridListSuccess = true;
           })
           .catch((error) => {
             console.error(error);
@@ -155,8 +165,18 @@ router.post("/", async (request, response) => {
 
         // Send user onboarding email
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        sgMail.send(msg);
+        await sgMail.send(msg)
+          .then((response) => {
+            console.log(response[0].statusCode)
+            console.log(response[0].headers)
+            sendgridSendEmailSuccess = true
+          })
+          .catch((error) => {
+            console.error(error)
+          });
       } else {
+        newCustomer = true;
+
         // Create user in supabase
         const { data: userData, error1 } = await supabase.auth.signUp({
           email: customerEmail,
@@ -171,6 +191,8 @@ router.post("/", async (request, response) => {
           email: customerEmail,
           membershipLevel: "member",
         });
+
+        if (!error1 && !error2) supabaseUpdateSuccess = true;
 
         // Add user to sendgrid database list
         client.setApiKey(process.env.SENDGRID_API_KEY);
@@ -193,11 +215,12 @@ router.post("/", async (request, response) => {
           body: contact,
         };
 
-        client
+        await client
           .request(requestAddContact)
           .then(([response, body]) => {
             console.log(response.statusCode);
             console.log(response.body);
+            sendgridListSuccess = true;
           })
           .catch((error) => {
             console.error(error);
@@ -216,10 +239,27 @@ router.post("/", async (request, response) => {
 
         // Send user onboarding email
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        sgMail.send(msg);
+        await sgMail.send(msg)  
+          .then((response) => {
+            console.log(response[0].statusCode)
+            console.log(response[0].headers)
+            sendgridSendEmailSuccess = true;
+          })
+          .catch((error) => {
+            console.error(error)
+          });
       }
 
       console.log("Checkout Completed!");
+
+      const notification_message = `
+${newCustomer ? 'NEW ' : ''}Customer: ${customerFirstName} - ${customerEmail}
+${supabaseUpdateSuccess ? '✅' : '❌'} Customer profile updated in Supabase
+${sendgridListSuccess ? '✅' : '❌'} Customer email added to SendGrid mailing list
+${sendgridSendEmailSuccess ? '✅' : '❌'} Customer sent onboarding email
+      `
+      await send_notification_telegram(notification_message)
+
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);
