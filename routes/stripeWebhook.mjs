@@ -5,6 +5,7 @@ import sgMail from "@sendgrid/mail";
 import client from "@sendgrid/client";
 
 import { send_notification_telegram } from "../helper/notification.js";
+import { addMemberToNotion } from "../helper/notion_update.js";
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -252,11 +253,20 @@ router.post("/", async (request, response) => {
 
       console.log("Checkout Completed!");
 
+      const memberInfo = {
+        'firstName': customerFirstName,
+        'email': customerEmail
+      }
+
+      const page_url = await addMemberToNotion(memberInfo)
+
       const notification_message = `
 ${newCustomer ? 'NEW ' : ''}Customer: ${customerFirstName} - ${customerEmail}
-${supabaseUpdateSuccess ? '✅' : '❌'} Customer profile updated in Supabase
-${sendgridListSuccess ? '✅' : '❌'} Customer email added to SendGrid mailing list
-${sendgridSendEmailSuccess ? '✅' : '❌'} Customer sent onboarding email
+${supabaseUpdateSuccess ? '✔️' : '❌'} Customer profile updated in Supabase
+${sendgridListSuccess ? '✔️' : '❌'} Customer email added to SendGrid mailing list
+${sendgridSendEmailSuccess ? '✔️' : '❌'} Customer sent onboarding email
+
+${page_url.length !== 0 ? '✔️' : '❌' } Notion page created: ${page_url}
       `
       await send_notification_telegram(notification_message)
 
