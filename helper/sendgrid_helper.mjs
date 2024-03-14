@@ -1,4 +1,5 @@
 import client from "@sendgrid/client";
+import { The100ClubListId } from "./constants.mjs";
 
 
 client.setApiKey(process.env.SENDGRID_API_KEY);
@@ -6,7 +7,7 @@ client.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const addContact = async () => {
     const contact = {
-        list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+        list_ids: [The100ClubListId],
         contacts: [
           {
             email: customerEmail,
@@ -50,16 +51,16 @@ export const getContactByEmail = async (email) => {
         body: data
       }
       
-      client.request(request)
+      const contactId = await client.request(request)
         .then(([response, body]) => {
           console.log(response.statusCode);
           console.log(response.body);
-          const contactId = response.body["result"][email]["contact"]["id"]
-          return contactId
+          return response.body["result"][email]["contact"]["id"]
         })
         .catch(error => {
           console.error(error);
         });
+      return contactId
 }
 
 

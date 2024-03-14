@@ -12,7 +12,9 @@ router.post("/update-member-status", async (request, response) => {
     const membershipLevel = request.body.record.membershipLevel
     
     const email = request.body.record.email
+    console.log(email)
     const contactId = await getContactByEmail(email)
+    console.log(contactId)
     
     if (membershipLevel === "ex-member" && prevMembershipLevel === "member") {
         console.log("Member churned")
