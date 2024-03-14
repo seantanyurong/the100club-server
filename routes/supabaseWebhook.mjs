@@ -8,6 +8,7 @@ import { The100ClubListId } from "../helper/constants.mjs";
 const router = express.Router();
 
 router.post("/update-member-status", async (request, response) => {
+    console.log(request)
     const prevMembershipLevel = request.body.old_record.membershipLevel
     const membershipLevel = request.body.record.membershipLevel
     
