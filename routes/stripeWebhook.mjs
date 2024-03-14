@@ -5,7 +5,7 @@ import sgMail from "@sendgrid/mail";
 import client from "@sendgrid/client";
 
 import { send_notification_telegram } from "../helper/notification.js";
-import { addMemberToNotion } from "../helper/notion_update.js";
+import { addMemberToNotion } from "../helper/notion_helper.mjs";
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
