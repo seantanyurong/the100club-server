@@ -6,6 +6,7 @@ import client from "@sendgrid/client";
 
 import { send_notification_telegram } from "../helper/notification.js";
 import { addMemberToNotion } from "../helper/notion_helper.mjs";
+import { The100ClubListId } from "../helper/constants.mjs";
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -53,7 +54,7 @@ router.post("/", async (request, response) => {
       // // Add user to sendgrid database list
       // client.setApiKey(process.env.SENDGRID_API_KEY);
       // const contact = {
-      //   list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+      //   list_ids: [The100ClubListId],
       //   contacts: [
       //     {
       //       email: customerEmail,
@@ -124,7 +125,7 @@ router.post("/", async (request, response) => {
         // Add user to sendgrid database list
         client.setApiKey(process.env.SENDGRID_API_KEY);
         const contact = {
-          list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+          list_ids: [The100ClubListId],
           contacts: [
             {
               email: customerEmail,
@@ -198,7 +199,7 @@ router.post("/", async (request, response) => {
         // Add user to sendgrid database list
         client.setApiKey(process.env.SENDGRID_API_KEY);
         const contact = {
-          list_ids: ["e8d3e60b-904f-44de-b146-b968aa539e5c"],
+          list_ids: [The100ClubListId],
           contacts: [
             {
               email: customerEmail,
