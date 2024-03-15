@@ -31,11 +31,10 @@ router.post("/update-member-status", async (request, response) => {
 
 
 router.post("/sync-with-notion", async (request, response) => {
-    console.log(request)
-
     const payloadType = request.body.type
     const record = request.body.record
 
+    console.log("RECORD: ")
     console.log(record)
 
     switch (payloadType) {

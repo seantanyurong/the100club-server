@@ -92,10 +92,10 @@ export const updateNotionPageProperties = async (supabase_record) => {
 
     try {
       const response = await filteredRows()
-      console.log(response)
+      console.log("Finding Notion page...")
       const notionPageId = response["results"][0]["id"]
       const result = await updateNotionPageProperties(notionPageId)
-      console.log(result)
+      console.log("Updating Notion page properties...")
       return result
     } catch (error) {
       console.error('An error occurred:', error.message)
