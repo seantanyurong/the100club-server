@@ -9,6 +9,14 @@ const MEMBERS_DATABASE_ID = "60f11f4ed6c249fdaa06a8b4976f0c7f"
 const PROFILES_DATABASE_ID = "9030f605b650435985c634bc471b0c5c"
 
 
+const checkUndefindOrNull = (value) => {
+  if (value === undefined || value === null) {
+    return ""
+  }
+  return value
+}
+
+
 export const updateNotionPageProperties = async (supabase_record) => {
     const filteredRows = async () => {
         const response = await notion.databases.query({
@@ -36,13 +44,13 @@ export const updateNotionPageProperties = async (supabase_record) => {
               email: supabase_record.email
             },
             companyLink: {
-              url: supabase_record.companyLink ? supabase_record.companyLink : ""
+              url: checkUndefindOrNull(supabase_record.companyLink)
             },
             fullName: {
               rich_text: [
                 {
                   text: {
-                    content: supabase_record.fullName ? supabase_record.fullName : ""
+                    content: checkUndefindOrNull(supabase_record.fullName)
                   }
                 }
               ]
@@ -51,7 +59,7 @@ export const updateNotionPageProperties = async (supabase_record) => {
               rich_text: [
                 {
                   text: {
-                    content: supabase_record.companyName ? supabase_record.companyName : ""
+                    content: checkUndefindOrNull(supabase_record.companyName)
                   }
                 }
               ]
@@ -60,7 +68,7 @@ export const updateNotionPageProperties = async (supabase_record) => {
               rich_text: [
                 {
                   text: {
-                    content: supabase_record.companyAbout ? supabase_record.companyAbout : ""
+                    content: checkUndefindOrNull(supabase_record.companyAbout)
                   }
                 }
               ]
@@ -69,13 +77,13 @@ export const updateNotionPageProperties = async (supabase_record) => {
               rich_text: [
                 {
                   text: {
-                    content: supabase_record.revenue ? supabase_record.revenue : ""
+                    content: checkUndefindOrNull(supabase_record.revenue)
                   }
                 }
               ]
             },
             totalFunding: {
-              number: supabase_record.totalFunding ? supabase_record.totalFunding : ""
+              number: checkUndefindOrNull(supabase_record.totalFunding)
             }
           },
         });
