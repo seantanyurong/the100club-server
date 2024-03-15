@@ -41,10 +41,22 @@ export const updateNotionPageProperties = async (supabase_record) => {
               }
             },
             email: {
-              email: supabase_record.email
+              rich_text: [
+                {
+                  text: {
+                    content: checkUndefindOrNull(supabase_record.email)
+                  }
+                }
+              ]
             },
             companyLink: {
-              url: supabase_record.companyLink
+              rich_text: [
+                {
+                  text: {
+                    content: checkUndefindOrNull(supabase_record.companyLink)
+                  }
+                }
+              ]
             },
             fullName: {
               rich_text: [
