@@ -44,7 +44,7 @@ export const updateNotionPageProperties = async (supabase_record) => {
               email: supabase_record.email
             },
             companyLink: {
-              url: checkUndefindOrNull(supabase_record.companyLink)
+              url: supabase_record.companyLink
             },
             fullName: {
               rich_text: [
@@ -83,7 +83,7 @@ export const updateNotionPageProperties = async (supabase_record) => {
               ]
             },
             totalFunding: {
-              number: checkUndefindOrNull(supabase_record.totalFunding)
+              number: supabase_record.totalFunding
             }
           },
         });
