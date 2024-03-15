@@ -2,7 +2,7 @@ import express from "express";
 
 import { getContactByEmail, deleteContactFromList } from "../helper/sendgrid_helper.mjs";
 import { The100ClubListId } from "../helper/constants.mjs";
-import { updateNotionPageProperties } from "../helper/notion_helper.mjs";
+import { updateNotionPageProperties, insertNotionPage } from "../helper/notion_helper.mjs";
 
 
 const router = express.Router();
@@ -40,6 +40,7 @@ router.post("/sync-with-notion", async (request, response) => {
     switch (payloadType) {
         case "INSERT":
             console.log("Inserting Notion page...")
+            await insertNotionPage(record)
             break;
 
         case "UPDATE":

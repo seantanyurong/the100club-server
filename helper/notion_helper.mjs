@@ -23,7 +23,7 @@ export const updateNotionPageProperties = async (supabase_record) => {
           database_id: PROFILES_DATABASE_ID,
           filter: {
             property: "id",
-            title: {
+            rich_text: {
                 equals: supabase_record.id           
             }
           },
@@ -113,6 +113,41 @@ export const updateNotionPageProperties = async (supabase_record) => {
       console.error('An error occurred:', error.message)
     }
 }
+
+
+export const insertNotionPage = async (supabase_record) => {
+  try {
+    const response = await notion.pages.create({
+      parent: {
+          database_id: PROFILES_DATABASE_ID
+      },
+      properties: {
+          id: {
+            rich_text: [
+              {
+                text: {
+                  content: supabase_record.id
+                }
+              }
+            ]
+          },
+          email: {
+            rich_text: [
+              {
+                text: {
+                  content: checkUndefindOrNull(supabase_record.email)
+                }
+              }
+            ]
+          },
+      }
+    });
+    console.log("Creating Notion Page...");
+    return response
+  } catch (error) {
+    console.error('An error occurred:', error.message)
+  }
+};
 
 
 export const addMemberToNotion = async (memberInfo) => {
