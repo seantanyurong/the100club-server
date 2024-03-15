@@ -6,14 +6,15 @@ const notion = new Client({
 
 
 const MEMBERS_DATABASE_ID = "60f11f4ed6c249fdaa06a8b4976f0c7f"
+const PROFILES_DATABASE_ID = "9030f605b650435985c634bc471b0c5c"
 
 
 export const updateNotionPageProperties = async (supabase_record) => {
     const filteredRows = async () => {
         const response = await notion.databases.query({
-          database_id: MEMBERS_DATABASE_ID,
+          database_id: PROFILES_DATABASE_ID,
           filter: {
-            property: "Id",
+            property: "id",
             title: {
                 equals: supabase_record.id           
             }
