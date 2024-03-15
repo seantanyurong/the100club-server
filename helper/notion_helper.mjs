@@ -23,10 +23,6 @@ export const updateNotionPageProperties = async (supabase_record) => {
       return response;
     }
 
-    const response = await filteredRows()
-    console.log(response)
-    const notionPageId = response["results"][0]["id"]
-
     const updateNotionPageProperties = async (notionPageId) => {
         const response = await notion.pages.update({
           page_id: notionPageId,
@@ -35,15 +31,67 @@ export const updateNotionPageProperties = async (supabase_record) => {
               select: {
                   name: supabase_record.membershipLevel
               }
+            },
+            email: {
+              email: supabase_record.email
+            },
+            companyLink: {
+              url: supabase_record.companyLink
+            },
+            fullName: {
+              rich_text: [
+                {
+                  text: {
+                    content: supabase_record.fullName
+                  }
+                }
+              ]
+            },
+            companyName: {
+              rich_text: [
+                {
+                  text: {
+                    content: supabase_record.companyName
+                  }
+                }
+              ]
+            },
+            companyAbout: {
+              rich_text: [
+                {
+                  text: {
+                    content: supabase_record.companyAbout
+                  }
+                }
+              ]
+            },
+            revenue: {
+              rich_text: [
+                {
+                  text: {
+                    content: supabase_record.revenue
+                  }
+                }
+              ]
+            },
+            totalFunding: {
+              number: supabase_record.totalFunding
             }
           },
         });
         return response
     };
 
-    const result = await updateNotionPageProperties(notionPageId)
-    console.log(result)
-    return result
+    try {
+      const response = await filteredRows()
+      console.log(response)
+      const notionPageId = response["results"][0]["id"]
+      const result = await updateNotionPageProperties(notionPageId)
+      console.log(result)
+      return result
+    } catch (error) {
+      console.error('An error occurred:', error.message)
+    }
 }
 
 
