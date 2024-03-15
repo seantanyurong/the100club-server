@@ -8,14 +8,14 @@ const notion = new Client({
 const MEMBERS_DATABASE_ID = "60f11f4ed6c249fdaa06a8b4976f0c7f"
 
 
-export const updateMemberStatusInNotion = async () => {
+export const updateNotionPageProperties = async (supabase_record) => {
     const filteredRows = async () => {
         const response = await notion.databases.query({
           database_id: MEMBERS_DATABASE_ID,
           filter: {
-            property: "Email",
-            rich_text: {
-                contains: "jozlpidc@gmail.com"            
+            property: "Id",
+            title: {
+                equals: supabase_record.id           
             }
           },
         });
@@ -23,20 +23,26 @@ export const updateMemberStatusInNotion = async () => {
     }
 
     const response = await filteredRows()
-    const pageId = response["results"][0]["id"]
-    
+    console.log(response)
+    const notionPageId = response["results"][0]["id"]
 
-    const update_page_properties = async () => {
+    const updateNotionPageProperties = async (notionPageId) => {
         const response = await notion.pages.update({
-          page_id: pageId,
+          page_id: notionPageId,
           properties: {
-            'In stock': {
-              checkbox: true,
-            },
+            membershipLevel: {
+              select: {
+                  name: supabase_record.membershipLevel
+              }
+            }
           },
         });
-        console.log(response);
+        return response
     };
+
+    const result = await updateNotionPageProperties(notionPageId)
+    console.log(result)
+    return result
 }
 
 
