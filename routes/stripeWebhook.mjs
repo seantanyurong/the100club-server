@@ -1,34 +1,35 @@
-import express from "express";
-import Stripe from "stripe";
-import { supabase } from "../supabaseApi.js";
-import sgMail from "@sendgrid/mail";
-import client from "@sendgrid/client";
+import express from 'express';
+import Stripe from 'stripe';
+import { supabase } from '../supabaseApi.js';
+import { supabaseAdmin } from '../supabaseAdminApi.js';
+import sgMail from '@sendgrid/mail';
+import client from '@sendgrid/client';
 
-import { send_notification_telegram } from "../helper/notification.js";
-import { addMemberToNotion } from "../helper/notion_helper.mjs";
-import { The100ClubListId } from "../helper/constants.mjs";
+import { send_notification_telegram } from '../helper/notification.js';
+import { addMemberToNotion } from '../helper/notion_helper.mjs';
+import { The100ClubListId } from '../helper/constants.mjs';
 
 // Live Key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2020-08-27",
+  apiVersion: '2020-08-27',
 });
 
 const router = express.Router();
 
 // Match the raw body to content type application/json
-router.post("/", async (request, response) => {
+router.post('/', async (request, response) => {
   const event = request.body;
 
   // Handle the event
   switch (event.type) {
-    case "checkout.session.completed":
+    case 'checkout.session.completed':
       const eventData = event.data.object;
       const customerData = eventData.customer_details;
       const customerEmail = customerData.email;
       const customerFirstName = event.data.object.custom_fields[0].text.value;
 
-      console.log("EMAIL " + customerEmail);
-      console.log("NAME " + customerFirstName);
+      console.log('EMAIL ' + customerEmail);
+      console.log('NAME ' + customerFirstName);
 
       // // Create user in supabase
       // const { data, error1 } = await supabase.auth.signUp({
@@ -101,12 +102,12 @@ router.post("/", async (request, response) => {
 
       // Check if user exsists
       let { data: userExists, error } = await supabase
-        .from("profiles")
+        .from('profiles')
         .select(`id, email`)
-        .eq("email", customerEmail)
+        .eq('email', customerEmail)
         .single();
 
-      console.log("USER EXISTS", userExists);
+      console.log('USER EXISTS', userExists);
 
       let newCustomer = false;
       let supabaseUpdateSuccess = false;
@@ -114,10 +115,10 @@ router.post("/", async (request, response) => {
       let sendgridSendEmailSuccess = false;
 
       if (userExists) {
-        const { error2 } = await supabase.from("profiles").upsert({
+        const { error2 } = await supabase.from('profiles').upsert({
           id: userExists.id,
           email: customerEmail,
-          membershipLevel: "member+mentor",
+          membershipLevel: 'member+mentor',
         });
 
         if (!error2) supabaseUpdateSuccess = true;
@@ -131,7 +132,7 @@ router.post("/", async (request, response) => {
               email: customerEmail,
               first_name: customerFirstName,
               custom_fields: {
-                e1_T: "member",
+                e1_T: 'member',
               },
             },
           ],
@@ -139,7 +140,7 @@ router.post("/", async (request, response) => {
 
         const requestAddContact = {
           url: `/v3/marketing/contacts`,
-          method: "PUT",
+          method: 'PUT',
           body: contact,
         };
 
@@ -157,8 +158,8 @@ router.post("/", async (request, response) => {
         // User data
         const msg = {
           to: customerEmail,
-          from: "hello@the100club.io",
-          templateId: "d-209500e2dfd843f289f68a014ce4b734",
+          from: 'hello@the100club.io',
+          templateId: 'd-209500e2dfd843f289f68a014ce4b734',
           dynamicTemplateData: {
             first_name: customerFirstName,
             email: customerEmail,
@@ -167,31 +168,32 @@ router.post("/", async (request, response) => {
 
         // Send user onboarding email
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        await sgMail.send(msg)
+        await sgMail
+          .send(msg)
           .then((response) => {
-            console.log(response[0].statusCode)
-            console.log(response[0].headers)
-            sendgridSendEmailSuccess = true
+            console.log(response[0].statusCode);
+            console.log(response[0].headers);
+            sendgridSendEmailSuccess = true;
           })
           .catch((error) => {
-            console.error(error)
+            console.error(error);
           });
       } else {
         newCustomer = true;
 
         // Create user in supabase
-        const { data: userData, error1 } = await supabase.auth.signUp({
+        const { data: userData, error1 } = await supabaseAdmin.auth.admin.createUser({
           email: customerEmail,
-          password: "password",
+          password: 'password',
         });
 
-        console.log("USER EXISTS", userData);
+        console.log('USER EXISTS', userData);
 
         // Add user to profile table
-        const { error2 } = await supabase.from("profiles").insert({
+        const { error2 } = await supabase.from('profiles').insert({
           id: userData.user.id,
           email: customerEmail,
-          membershipLevel: "member",
+          membershipLevel: 'member',
         });
 
         if (!error1 && !error2) supabaseUpdateSuccess = true;
@@ -205,7 +207,7 @@ router.post("/", async (request, response) => {
               email: customerEmail,
               first_name: customerFirstName,
               custom_fields: {
-                e1_T: "member",
+                e1_T: 'member',
               },
             },
           ],
@@ -213,7 +215,7 @@ router.post("/", async (request, response) => {
 
         const requestAddContact = {
           url: `/v3/marketing/contacts`,
-          method: "PUT",
+          method: 'PUT',
           body: contact,
         };
 
@@ -231,8 +233,8 @@ router.post("/", async (request, response) => {
         // User data
         const msg = {
           to: customerEmail,
-          from: "hello@the100club.io",
-          templateId: "d-899eb8f026434e62b3207cf67620dbcb",
+          from: 'hello@the100club.io',
+          templateId: 'd-899eb8f026434e62b3207cf67620dbcb',
           dynamicTemplateData: {
             first_name: customerFirstName,
             email: customerEmail,
@@ -241,25 +243,26 @@ router.post("/", async (request, response) => {
 
         // Send user onboarding email
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        await sgMail.send(msg)  
+        await sgMail
+          .send(msg)
           .then((response) => {
-            console.log(response[0].statusCode)
-            console.log(response[0].headers)
+            console.log(response[0].statusCode);
+            console.log(response[0].headers);
             sendgridSendEmailSuccess = true;
           })
           .catch((error) => {
-            console.error(error)
+            console.error(error);
           });
       }
 
-      console.log("Checkout Completed!");
+      console.log('Checkout Completed!');
 
       const memberInfo = {
-        'firstName': customerFirstName,
-        'email': customerEmail
-      }
+        firstName: customerFirstName,
+        email: customerEmail,
+      };
 
-      const page_url = await addMemberToNotion(memberInfo)
+      const page_url = await addMemberToNotion(memberInfo);
 
       const notification_message = `
 ${newCustomer ? 'NEW ' : ''}Customer: ${customerFirstName} - ${customerEmail}
@@ -267,9 +270,9 @@ ${supabaseUpdateSuccess ? '✔️' : '❌'} Customer profile updated in Supabase
 ${sendgridListSuccess ? '✔️' : '❌'} Customer email added to SendGrid mailing list
 ${sendgridSendEmailSuccess ? '✔️' : '❌'} Customer sent onboarding email
 
-${page_url.length !== 0 ? '✔️' : '❌' } Notion page created: ${page_url}
-      `
-      await send_notification_telegram(notification_message)
+${page_url.length !== 0 ? '✔️' : '❌'} Notion page created: ${page_url}
+      `;
+      await send_notification_telegram(notification_message);
 
       break;
     default:
