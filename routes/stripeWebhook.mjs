@@ -1,7 +1,7 @@
 import express from 'express';
 import Stripe from 'stripe';
 import { supabase } from '../supabaseApi.js';
-import { supabaseAdmin } from '../supabaseAdminApi.js';
+import supabaseAdmin from '../supabaseAdminApi.js';
 import sgMail from '@sendgrid/mail';
 import client from '@sendgrid/client';
 
