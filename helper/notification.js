@@ -12,4 +12,15 @@ export const send_notification_telegram = async (message) => {
       .catch(function (error) {
         console.log(error);
       });
+
+    await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        chat_id: -4544691036,
+        text: message,
+    })
+    .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 }
