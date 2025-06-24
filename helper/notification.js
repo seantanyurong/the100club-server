@@ -14,7 +14,7 @@ export const send_notification_telegram = async (message) => {
       });
 
     await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        chat_id: -4544691036,
+        chat_id: -4693230803,
         text: message,
     })
     .then(function (response) {
